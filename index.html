@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>UNDERTALE モンスター図鑑</title>
+
+<style>
+@font-face {
+  font-family: "JF-Dot-K14";
+  src: url("JF-Dot-K14.ttf") format("truetype");
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #000;
+  color: #fff;
+  font-family: "JF-Dot-K14", monospace;
+  font-size: 18px;
+}
+
+.container {
+  width: 92%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px 0 60px;
+}
+
+h1 {
+  text-align: center;
+  color: #ffb000;
+  font-size: 34px;
+  margin: 0 0 20px;
+}
+
+.intro {
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.search {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #111;
+  color: #fff;
+  border: 2px solid #fff;
+  font-family: inherit;
+  font-size: 18px;
+}
+
+.monster-list {
+  height: 130px;
+  overflow-y: auto;
+  border: 2px solid #fff;
+  padding: 5px;
+  margin-bottom: 25px;
+}
+
+.monster-button {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  color: #fff;
+  border: none;
+  text-align: left;
+  font-family: inherit;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.monster-button:hover,
+.monster-button.active {
+  background: #181000;
+  color: #ffb000;
+}
+
+.details {
+  border: 2px solid #fff;
+  padding: 25px;
+  min-height: 400px;
+}
+
+.detail-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 30px;
+}
+
+.monster-image {
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+h2 {
+  margin-top: 0;
+  color: #ffb000;
+  font-size: 32px;
+}
+
+.stats {
+  line-height: 1.9;
+}
+
+.label {
+  color: #ffb000;
+}
+
+.analysis {
+  margin-top: 20px;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+@media (max-width: 650px) {
+  .detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .monster-image {
+    width: 180px;
+    height: 180px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>UNDERTALE モンスター図鑑</h1>
+
+  <div class="intro">
+    UNDERTALEに登場するモンスターを記録する図鑑です。<br>
+    モンスターを選択すると詳細情報が表示されます。
+  </div>
+
+  <input
+    id="search"
+    class="search"
+    type="text"
+    placeholder="モンスターを検索…"
+  >
+
+  <div id="monster-list" class="monster-list"></div>
+
+  <div id="details" class="details"></div>
+
+</div>
+
+<!-- モンスターデータは monster-data.js で管理 -->
+<script src="monster-data.js"></script>
+
+<script>
+
+/* =========================================
+   表示処理
+========================================= */
+
+const list =
+  document.getElementById("monster-list");
+
+const details =
+  document.getElementById("details");
+
+const search =
+  document.getElementById("search");
+
+
+function showMonster(monster, button) {
+
+  document
+    .querySelectorAll(".monster-button")
+    .forEach(function(b) {
+      b.classList.remove("active");
+    });
+
+  if (button) {
+    button.classList.add("active");
+  }
+
+  details.innerHTML = `
+
+    <div class="detail-layout">
+
+      <div>
+
+        <img
+          class="monster-image"
+          src="${monster.image}"
+          alt="${monster.name}"
+        >
+
+      </div>
+
+      <div>
+
+        <h2>${monster.name}</h2>
+
+        <div class="stats">
+
+          <div>
+            <span class="label">種類：</span>
+            ${monster.type}
+          </div>
+
+          <div>
+            <span class="label">出現場所：</span>
+            ${monster.location}
+          </div>
+
+          <div>
+            <span class="label">HP：</span>
+            ${monster.hp}
+          </div>
+
+          <div>
+            <span class="label">攻撃力：</span>
+            ${monster.atk}
+          </div>
+
+          <div>
+            <span class="label">防御力：</span>
+            ${monster.def}
+          </div>
+
+          <div>
+            <span class="label">EXP：</span>
+            ${monster.exp}
+          </div>
+
+          <div>
+            <span class="label">G：</span>
+            ${monster.gold}
+          </div>
+
+        </div>
+
+        <div class="analysis">
+          <span class="label">分析：</span>
+          ${monster.analysis}
+        </div>
+
+        <div class="analysis">
+          <span class="label">逃がす方法：</span>
+          ${monster.spare}
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+}
+
+
+/* =========================================
+   モンスター一覧
+========================================= */
+
+function renderMonsters(keyword) {
+
+  list.innerHTML = "";
+
+  keyword = keyword.toLowerCase();
+
+  const filtered =
+    monsters.filter(function(monster) {
+
+      return monster.name
+        .toLowerCase()
+        .includes(keyword);
+
+    });
+
+
+  filtered.forEach(function(monster, index) {
+
+    const button =
+      document.createElement("button");
+
+    button.className =
+      "monster-button";
+
+    button.textContent =
+      monster.name;
+
+
+    button.addEventListener(
+      "click",
+      function() {
+
+        showMonster(monster, button);
+
+      }
+    );
+
+
+    list.appendChild(button);
+
+
+    if (index === 0) {
+      showMonster(monster, button);
+    }
+
+  });
+
+}
+
+
+/* =========================================
+   検索
+========================================= */
+
+search.addEventListener(
+  "input",
+  function() {
+
+    renderMonsters(search.value);
+
+  }
+);
+
+
+/* =========================================
+   初期表示
+========================================= */
+
+renderMonsters("");
+
+</script>
+
+</body>
+</html>
