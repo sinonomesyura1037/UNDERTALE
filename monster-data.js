@@ -123,5 +123,19 @@ const monsters = [
   gold: 0,
   analysis: "「これは　あなたを　\nまもるため」",
   spare: "にがし続ける"
+},
+  
+{
+  name: "オワライチョウ",
+  type: "ザコ敵",
+  location: "スノーフル",
+  image: "images/owarai.png",
+  hp: 75,
+  atk: 12,
+  def: 7,
+  exp: 22,
+  gold: "倒すと18、見逃すと12、戦ってから逃がすと13〜17",
+  analysis: "かんきゃくに　ネタをきかせるべく\nたたかう　ティーン・コメディアン。",
+  spare: "2ターン目にわらう"
 }
 ];
